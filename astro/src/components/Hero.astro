@@ -1,0 +1,71 @@
+---
+import {
+  identity,
+  role,
+  tagline,
+  heroHeadline,
+  availability,
+  now,
+  nowStack,
+  languages,
+  ui,
+  type Locale,
+} from '../content/portfolio';
+
+export interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = ui[locale];
+
+// heroHeadline has <em> anchor words; we split & style inline for each locale.
+const headline = heroHeadline[locale];
+---
+<section class="v6-hero" id="home">
+  <div class="eyebrow">AI / ML · GENERATIVE · AGENTIC · MULTI-MODAL</div>
+  <h1 set:html={headline.replace(/—/g, '<em>—</em>')}></h1>
+  <p class="lede">{tagline[locale]}</p>
+
+  <div class="v6-hero-actions">
+    <a class="btn" href={`mailto:${identity.email}`}>→ {t.cta.contact}</a>
+    <a class="btn ghost" href="/cv.pdf" download>↓ {t.cta.cv}</a>
+    <a class="btn ghost" href="#terminal">{t.cta.shell}</a>
+  </div>
+
+  <div class="v6-hero-meta">
+    <div><span class="k">ROLE</span><span class="v">{role[locale]}</span></div>
+    <div><span class="k">BASE</span><span class="v">{identity.location}</span></div>
+    <div><span class="k">NOW</span><span class="v">Unico Studio · 2025 →</span></div>
+    <div><span class="k">STATUS</span><span class="v" style="color:var(--accent)">● {t.latency}</span></div>
+  </div>
+
+  <!-- NOW / CURRENTLY BUILDING -->
+  <div class="v6-now">
+    <div class="v6-now-head">
+      <span class="v6-now-badge">
+        <span class="v6-now-dot"></span>
+        NOW · {t.now}
+      </span>
+      <div class="v6-now-rule"></div>
+      <span class="v6-now-meta">{availability[locale]}</span>
+    </div>
+    <p class="v6-now-body">{now[locale]}</p>
+    <div class="v6-now-stack">
+      {nowStack.map((s) => <span class="tag">{s}</span>)}
+    </div>
+  </div>
+
+  <!-- LANGUAGES STRIP -->
+  <div class="v6-langs">
+    {languages.map((l) => (
+      <div class="v6-lang">
+        <span class="code">{l.code}</span>
+        <div class="bar"><span style={`width:${l.pct}%`}></span></div>
+        <span class="lvl">{l.level}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style is:global>
+  /* Hero-specific tweak: headline emphasis */
+  .v6-hero h1 em { font-style: normal; color: var(--accent); }
+</style>

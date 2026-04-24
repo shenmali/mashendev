@@ -1,0 +1,27 @@
+{
+  "name": "mashen-dev",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^5.1.0",
+    "@astrojs/react": "^4.1.0",
+    "@astrojs/sitemap": "^3.2.1",
+    "@astrojs/tailwind": "^5.1.4",
+    "@astrojs/cloudflare": "^12.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.17",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

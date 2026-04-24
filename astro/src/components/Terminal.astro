@@ -1,0 +1,91 @@
+---
+import { identity, focus, experience, ui, type Locale } from '../content/portfolio';
+
+export interface Props { locale: Locale }
+const { locale } = Astro.props;
+const t = ui[locale];
+const slug = identity.name.toLowerCase().replace(/[.\s]/g, '');
+---
+<section class="v6-terminal-wrap" id="terminal">
+  <div class="v1-shell v6-shell">
+    <div class="v1-chrome">
+      <span class="v1-dots"><i></i><i></i><i></i></span>
+      <span style="margin-left:14px">— mashen@matrix : ~/portfolio —</span>
+      <span style="margin-left:auto">tmux · 80×24 · {t.status}</span>
+    </div>
+    <div class="v1-body">
+      <div>
+        <span class="v1-prompt">mashen@matrix</span><span class="v1-dim">:</span
+        ><span class="v1-path">~/portfolio</span><span class="v1-dim">$</span>
+        <span class="v1-cmd">whoami --verbose</span>
+      </div>
+      <div style="margin-top:10px;font-size:13px;line-height:1.9">
+        <div>
+          <span class="v1-dim">user</span>{'    '}
+          <span style="color:var(--accent)">{slug}</span>
+          <span class="v1-dim"> ({identity.name})</span>
+        </div>
+        <div><span class="v1-dim">uid</span>{'     '}1000 &nbsp; <span class="v1-dim">gid</span> 1000(ai-ml)</div>
+        <div><span class="v1-dim">groups</span>{' '}ai-ml, generative, agentic, automation, l10n, game-lab</div>
+        <div><span class="v1-dim">shell</span>{'   '}/bin/ship</div>
+        <div><span class="v1-dim">since</span>{'   '}2021 · {experience.length} engagements · {focus.length} active domains</div>
+      </div>
+
+      <div style="margin-top:26px">
+        <span class="v1-prompt">mashen@matrix</span><span class="v1-dim">:</span
+        ><span class="v1-path">~/portfolio</span><span class="v1-dim">$</span>
+        <span class="v1-cmd">ls -la focus/</span>
+      </div>
+      <div class="v1-listing" style="margin-top:10px">
+        <div class="kind">total {focus.length}</div><div></div><div></div>
+        {focus.map((f) => (
+          <>
+            <div class="kind">drwxr-xr-x</div>
+            <div><span class="name">{f.id}/</span> <span class="v1-dim">— {f.title[locale]}</span></div>
+            <div class="hint">[{f.code}]</div>
+          </>
+        ))}
+      </div>
+
+      <div style="margin-top:26px">
+        <span class="v1-prompt">mashen@matrix</span><span class="v1-dim">:</span
+        ><span class="v1-path">~/portfolio</span><span class="v1-dim">$</span>
+        <span class="v1-cmd">tail -n {experience.length} experience.log</span>
+      </div>
+      <div style="margin-top:10px;font-size:12.5px;line-height:1.9">
+        {experience.map((e) => (
+          <div>
+            <span class="v1-dim">[{e.year}]</span>{' '}
+            <span style="color:var(--accent)">{e.company}</span>{' '}
+            <span class="v1-dim">·</span>{' '}
+            <span>{e.role[locale]}</span>
+            {e.tag === 'current' && <span class="tag" style="margin-left:10px">● {t.latency}</span>}
+          </div>
+        ))}
+      </div>
+
+      <div style="margin-top:26px">
+        <span class="v1-prompt">mashen@matrix</span><span class="v1-dim">:</span
+        ><span class="v1-path">~/portfolio</span><span class="v1-dim">$</span>
+        <span class="v1-cmd">cat contact.sh</span>
+      </div>
+      <div style="margin-top:10px;font-size:12.5px;line-height:1.9">
+        <div><span class="v1-dim">#!/bin/bash</span></div>
+        <div><span class="v1-dim">email=</span><span style="color:var(--accent)">"{identity.email}"</span></div>
+        <div><span class="v1-dim">github=</span><span style="color:var(--accent)">"github.com/{identity.github}"</span></div>
+        <div><span class="v1-dim">linkedin=</span><span style="color:var(--accent)">"in/{identity.linkedin}"</span></div>
+        <div><span class="v1-dim">medium=</span><span style="color:var(--accent)">"medium.com/{identity.medium}"</span></div>
+        <div>
+          <span class="v1-prompt">mashen@matrix</span><span class="v1-dim">:</span
+          ><span class="v1-path">~/portfolio</span><span class="v1-dim">$</span>
+          <span class="caret"></span>
+        </div>
+      </div>
+    </div>
+    <div class="v1-bar">
+      <span>-- INSERT --</span>
+      <span>utf-8 · {locale} · {t.status}</span>
+      <span>mashen.dev · {identity.location}</span>
+    </div>
+  </div>
+</section>

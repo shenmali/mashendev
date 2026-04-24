@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>mashen.dev — Portfolio Explorations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=3" />
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="content.jsx"></script>
+  <script type="text/babel" src="matrix.jsx"></script>
+  <script type="text/babel" src="v1-terminal.jsx"></script>
+  <script type="text/babel" src="v2-ide.jsx"></script>
+  <script type="text/babel" src="v3-dossier.jsx"></script>
+  <script type="text/babel" src="v4-hybrid.jsx"></script>
+  <script type="text/babel" src="v5-scroll.jsx"></script>
+  <script type="text/babel" src="v6-mix.jsx"></script>
+  <script type="text/babel" src="konami.jsx"></script>
+
+  <script type="text/babel">
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "language": "en",
+      "accent": "#39ff88",
+      "rainIntensity": 55,
+      "scanlines": false,
+      "paused": false
+    }/*EDITMODE-END*/;
+
+    // Apply accent globally via CSS variable
+    const ApplyAccent = ({ color }) => {
+      React.useEffect(() => {
+        const r = document.documentElement.style;
+        r.setProperty('--accent', color);
+        // recompute line colors
+        const hex = color.replace('#','');
+        const rr = parseInt(hex.substr(0,2),16), gg = parseInt(hex.substr(2,2),16), bb = parseInt(hex.substr(4,2),16);
+        r.setProperty('--line',  `rgba(${rr}, ${gg}, ${bb}, 0.16)`);
+        r.setProperty('--line-2',`rgba(${rr}, ${gg}, ${bb}, 0.32)`);
+        r.setProperty('--line-3',`rgba(${rr}, ${gg}, ${bb}, 0.58)`);
+      }, [color]);
+      return null;
+    };
+
+    // ── Boot overlay — Matrix-style connection intro on first load
+    const BootOverlay = ({ text }) => {
+      const lines = [
+        "> booting mashen.os v3.14.2 ...",
+        "> wake agent cluster [langgraph × n8n × mcp] ............ OK",
+        "> load comfyui::workflows / flux / sd / lora ............ OK",
+        "> mount ragstore[neo4j + qdrant + pgvector] ............ OK",
+        "> authenticate identity = M. Ali SEN ...................  OK",
+        `> ${text.toLowerCase()} ...`,
+        "> follow the white rabbit.",
+      ];
+      return (
+        <div className="boot">
+          <canvas className="boot-rain" ref={(el) => {
+            if (!el || el.__init) return; el.__init = true;
+            const ctx = el.getContext("2d");
+            const resize = () => { el.width = innerWidth; el.height = innerHeight; };
+            resize(); window.addEventListener("resize", resize);
+            const chars = "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789".split("");
+            const fs = 16;
+            const cols = Math.floor(innerWidth / fs);
+            const drops = Array.from({ length: cols }, () => Math.random() * -50);
+            const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#39ff88";
+            let stopped = false;
+            const tick = () => {
+              if (stopped) return;
+              ctx.fillStyle = "rgba(2, 4, 2, 0.12)";
+              ctx.fillRect(0, 0, el.width, el.height);
+              ctx.font = `${fs}px 'IBM Plex Mono', monospace`;
+              ctx.fillStyle = accent;
+              drops.forEach((y, i) => {
+                ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fs, y * fs);
+                drops[i] = y * fs > el.height && Math.random() > 0.975 ? 0 : y + 1;
+              });
+              requestAnimationFrame(tick);
+            };
+            tick();
+            setTimeout(() => { stopped = true; }, 3000);
+          }} />
+          <div className="boot-inner">
+            {lines.map((ln, i) => {
+              const isOk = ln.endsWith("OK");
+              const body = ln.replace(/ OK$/, "");
+              return (
+                <div className="boot-line" key={i}>
+                  <span>{body}</span>
+                  {isOk && <span className="ok"> OK</span>}
+                </div>
+              );
+            })}
+            <div className="boot-line"><span className="dim">// session ready</span><span className="caret"></span></div>
+          </div>
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+      const lang = tweaks.language;
+      const accent = tweaks.accent;
+      const [booted, setBooted] = React.useState(sessionStorage.getItem("mashen_booted") === "1");
+      React.useEffect(() => {
+        if (booted) return;
+        const t = setTimeout(() => { setBooted(true); sessionStorage.setItem("mashen_booted", "1"); }, 2900);
+        return () => clearTimeout(t);
+      }, [booted]);
+
+      // Override intensity/paused/scanlines via React context-like prop drilling
+      // We'll monkey-patch MatrixBackdrop default args via a wrapper
+      React.useEffect(() => {
+        window.__MX = { intensity: tweaks.rainIntensity, accent, paused: tweaks.paused, scanlines: tweaks.scanlines };
+      }, [tweaks]);
+
+      // Wrap MatrixBackdrop so variations honor tweaks
+      React.useEffect(() => {
+        if (!window.__OriginalBackdrop) window.__OriginalBackdrop = window.MatrixBackdrop;
+        const Orig = window.__OriginalBackdrop;
+        window.MatrixBackdrop = (props) => {
+          const mx = window.__MX || {};
+          return <Orig
+            {...props}
+            intensity={mx.intensity != null ? Math.min(100, props.intensity * (mx.intensity / 50)) : props.intensity}
+            accent={mx.accent || props.accent}
+            paused={mx.paused}
+            scanlines={mx.scanlines || props.scanlines}
+          />;
+        };
+      }, []);
+
+      const [key, setKey] = React.useState(0);
+      React.useEffect(() => { setKey(k => k + 1); }, [lang, tweaks.rainIntensity, tweaks.accent, tweaks.paused, tweaks.scanlines]);
+
+      const sections = [
+        { id: 'hero', title: 'Main explorations' }
+      ];
+
+      const artboards = [
+        { id: 'v6', label: 'V6 · Hero + Terminal + Dossier ★', width: 1280, height: 4000, node: <V6_Mix lang={lang} /> },
+        { id: 'v1', label: 'V1 · Terminal / CLI', width: 1280, height: 900, node: <V1_Terminal lang={lang} /> },
+        { id: 'v2', label: 'V2 · IDE / Editor',    width: 1280, height: 1000, node: <V2_IDE lang={lang} /> },
+        { id: 'v4', label: 'V4 · Hybrid hero',     width: 1280, height: 1160, node: <V4_Hybrid lang={lang} /> },
+        { id: 'v3', label: 'V3 · Dossier / archive', width: 1280, height: 1420, node: <V3_Dossier lang={lang} /> },
+        { id: 'v5', label: 'V5 · Single-page scroll', width: 1280, height: 1800, node: <V5_Scroll lang={lang} /> },
+      ];
+
+      return (
+        <>
+          <ApplyAccent color={accent} />
+          {!booted && <BootOverlay text={(CONTENT.ui[lang] || CONTENT.ui.en).boot} />}
+          <DesignCanvas key={key} title="mashen.dev — Matrix portfolio">
+            <DCSection id="main" title="Matrix portfolio — 5 directions">
+              {artboards.map(a => (
+                <DCArtboard key={a.id} id={a.id} label={a.label} width={a.width} height={a.height}>
+                  {a.node}
+                </DCArtboard>
+              ))}
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Language" />            <TweakRadio
+              label="Locale"
+              value={tweaks.language}
+              onChange={v => setTweak('language', v)}
+              options={[
+                { value: 'tr', label: 'TR' },
+                { value: 'en', label: 'EN' },
+                { value: 'nl', label: 'NL' },
+              ]}
+            />
+            <TweakSection label="Matrix rain" />
+            <TweakSlider
+              label="Intensity"
+              min={0} max={100} step={5}
+              value={tweaks.rainIntensity}
+              onChange={v => setTweak('rainIntensity', v)}
+            />
+            <TweakToggle
+              label="Pause animation"
+              value={tweaks.paused}
+              onChange={v => setTweak('paused', v)}
+            />
+            <TweakToggle
+              label="CRT scanlines"
+              value={tweaks.scanlines}
+              onChange={v => setTweak('scanlines', v)}
+            />
+            <TweakSection label="Accent" />
+            <TweakRadio
+              label="Preset"
+              value={tweaks.accent}
+              onChange={v => setTweak('accent', v)}
+              options={[
+                { value: '#39ff88', label: 'Matrix' },
+                { value: '#5ec9ff', label: 'Cyan' },
+                { value: '#ffb13d', label: 'Amber' },
+                { value: '#ff6f91', label: 'Magenta' },
+              ]}
+            />
+            <TweakColor
+              label="Custom"
+              value={tweaks.accent}
+              onChange={v => setTweak('accent', v)}
+            />
+          </TweaksPanel>
+          <KonamiTakeover />
+        </>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

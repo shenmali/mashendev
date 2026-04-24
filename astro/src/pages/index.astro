@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Terminal from '../components/Terminal.astro';
+import Dossier from '../components/Dossier.astro';
+import MatrixBackdrop from '../components/islands/MatrixBackdrop.tsx';
+import TweaksPanel from '../components/islands/TweaksPanel.tsx';
+import Konami from '../components/islands/Konami.tsx';
+import { ui } from '../content/portfolio';
+
+const locale = 'en' as const;
+const t = ui[locale];
+---
+<BaseLayout locale={locale}>
+  <MatrixBackdrop client:load intensity={55} accent="#39ff88" grid paused={false} />
+  <div class="v6 artboard">
+    <Nav locale={locale} />
+    <Hero locale={locale} />
+    <Terminal locale={locale} />
+    <Dossier locale={locale} />
+    <footer class="v5-foot">
+      © {new Date().getFullYear()} · MASHEN.DEV · made with matrix-rain &amp; coffee — {t.status}
+    </footer>
+  </div>
+  <TweaksPanel client:idle />
+  <Konami client:idle />
+</BaseLayout>

@@ -1,0 +1,93 @@
+---
+import { identity, ui, type Locale } from '../content/portfolio';
+
+export interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = ui[locale];
+
+const base = locale === 'en' ? '' : `/${locale}`;
+const links = [
+  { href: `${base}/#home`, label: t.nav.home },
+  { href: `${base}/#terminal`, label: '~/shell' },
+  { href: `${base}/#focus`, label: t.nav.focus },
+  { href: `${base}/#work`, label: t.nav.work },
+  { href: `${base}/#repos`, label: t.nav.repos },
+  { href: `${base}/#contact`, label: t.nav.contact },
+];
+---
+<nav class="site-nav">
+  <a href={base || '/'} class="brand">MASHEN.DEV</a>
+  <div class="links">
+    {links.map((l) => (
+      <a href={l.href}>{l.label}</a>
+    ))}
+  </div>
+  <div class="nav-tail">
+    <div class="lang-switch">
+      <a href="/" class:list={[{ active: locale === 'en' }]}>EN</a>
+      <a href="/tr/" class:list={[{ active: locale === 'tr' }]}>TR</a>
+      <a href="/nl/" class:list={[{ active: locale === 'nl' }]}>NL</a>
+    </div>
+    <span class="status"><span class="dot"></span>{t.status}</span>
+  </div>
+</nav>
+
+<style>
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 20px;
+    padding: 14px 40px;
+    background: rgba(2, 4, 2, 0.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 11.5px;
+  }
+  .brand { color: var(--accent); letter-spacing: 0.18em; text-decoration: none; }
+  .links {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+  }
+  .links a { color: inherit; text-decoration: none; transition: color 120ms; }
+  .links a:hover { color: var(--accent); }
+  .nav-tail { display: flex; align-items: center; gap: 18px; }
+  .lang-switch { display: flex; gap: 1px; background: var(--line); padding: 1px; border: 1px solid var(--line); }
+  .lang-switch a {
+    padding: 4px 10px;
+    color: var(--muted);
+    text-decoration: none;
+    background: var(--bg);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    transition: color 120ms, background 120ms;
+  }
+  .lang-switch a:hover { color: var(--accent); }
+  .lang-switch a.active { color: var(--bg); background: var(--accent); }
+  .status {
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 10.5px;
+  }
+  .status .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s infinite;
+  }
+</style>
